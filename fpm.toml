@@ -1,0 +1,13 @@
+name = "cyclonedx-fpm"
+version = "0.1.0"
+license = "Apache-2.0"
+author = "CycloneDX Fortran Contributors"
+description = "CycloneDX SBOM generator for Fortran fpm projects"
+
+[build]
+auto-executables = true
+auto-tests = true
+
+[dependencies]
+toml-f = { git = "https://github.com/toml-f/toml-f" }
+json-fortran = { git = "https://github.com/jacobwilliams/json-fortran" }
