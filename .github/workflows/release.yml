@@ -30,12 +30,12 @@ jobs:
           - runner: ubuntu-latest
             target: linux-x86_64
             binary: cyclonedx-fpm
-          - runner: macos-15-intel
-            target: macos-x86_64
-            binary: cyclonedx-fpm
-          - runner: macos-latest
-            target: macos-arm64
-            binary: cyclonedx-fpm
+          # - runner: macos-15-intel
+          #   target: macos-x86_64
+          #   binary: cyclonedx-fpm
+          # - runner: macos-latest
+          #   target: macos-arm64
+          #   binary: cyclonedx-fpm
           - runner: windows-latest
             target: windows-x86_64
             binary: cyclonedx-fpm.exe
