@@ -43,7 +43,7 @@ contains
         type(json_value), pointer :: root, metadata, tools, tool_arr, tool_obj
         type(json_value), pointer :: meta_component, components, comp_obj
         type(json_value), pointer :: dep_array, dep_obj, depends_on
-        type(json_value), pointer :: ext_refs, ext_ref_obj, licenses, lic_obj, lic_inner
+        type(json_value), pointer :: ext_refs, ext_ref_obj, licenses, lic_obj
         character(len=36) :: uuid
         character(len=20) :: timestamp
         character(len=:), allocatable :: purl, version_str, scope_str
@@ -132,7 +132,7 @@ contains
         type(dep_node_t), intent(in) :: node
         logical, intent(in) :: is_root
 
-        type(json_value), pointer :: ext_refs, ext_ref_obj, licenses, lic_obj, lic_inner
+        type(json_value), pointer :: ext_refs, ext_ref_obj, licenses, lic_obj
         character(len=:), allocatable :: purl, version_str, scope_str
         character(len=:), allocatable :: owner, repo
         logical :: is_github
@@ -183,9 +183,7 @@ contains
             call json%add(obj, licenses)
             call json%create_object(lic_obj, '')
             call json%add(licenses, lic_obj)
-            call json%create_object(lic_inner, 'license')
-            call json%add(lic_obj, lic_inner)
-            call json%add(lic_inner, 'id', trim(node%package%license))
+            call json%add(lic_obj, 'expression', trim(node%package%license))
         end if
 
         ! External references
