@@ -12,7 +12,7 @@ jobs:
       - uses: fortran-lang/setup-fortran@v1
         with:
           compiler: gcc
-          version: 13
+          version: 14
 
       - uses: fortran-lang/setup-fpm@v7
 
