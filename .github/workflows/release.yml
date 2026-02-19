@@ -1,0 +1,87 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: fortran-lang/setup-fortran@v1
+        with:
+          compiler: gcc
+          version: 13
+
+      - uses: fortran-lang/setup-fpm@v7
+
+      - run: fpm test
+
+  build:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            target: linux-x86_64
+            binary: cyclonedx-fpm
+          - runner: macos-13
+            target: macos-x86_64
+            binary: cyclonedx-fpm
+          - runner: macos-latest
+            target: macos-arm64
+            binary: cyclonedx-fpm
+          - runner: windows-latest
+            target: windows-x86_64
+            binary: cyclonedx-fpm.exe
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: fortran-lang/setup-fortran@v1
+        with:
+          compiler: gcc
+          version: 13
+
+      - uses: fortran-lang/setup-fpm@v7
+
+      - run: fpm build --profile release
+
+      - run: fpm install --prefix ./install
+
+      - name: Rename binary
+        run: mv ./install/bin/${{ matrix.binary }} ./cyclonedx-fpm-${{ matrix.target }}${{ matrix.target == 'windows-x86_64' && '.exe' || '' }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cyclonedx-fpm-${{ matrix.target }}
+          path: ./cyclonedx-fpm-${{ matrix.target }}*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version from fpm.toml
+        id: version
+        run: echo "version=$(grep '^version' fpm.toml | sed 's/.*= *"\(.*\)"/\1/')" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          files: artifacts/*
