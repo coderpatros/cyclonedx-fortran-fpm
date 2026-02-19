@@ -20,13 +20,26 @@ program test_manifest_parser
     implicit none
 
     integer :: failures
-    character(len=256) :: tmp_file
-    integer :: u, ios
+    character(len=256) :: tmp_dir, tmp_file
+    integer :: u, ios, tlen
 
     failures = 0
 
-    ! Write a temp fpm.toml fixture
-    tmp_file = '/tmp/test_cdx_fpm_manifest.toml'
+    ! Get temp directory (cross-platform)
+    call get_environment_variable('TMPDIR', tmp_dir, tlen, ios)
+    if (ios /= 0 .or. tlen == 0) then
+        call get_environment_variable('TEMP', tmp_dir, tlen, ios)
+    end if
+    if (ios /= 0 .or. tlen == 0) then
+        call get_environment_variable('TMP', tmp_dir, tlen, ios)
+    end if
+    if (ios /= 0 .or. tlen == 0) then
+        tmp_dir = '/tmp'
+        tlen = 4
+    end if
+
+    ! Build temp file path with correct separator
+    tmp_file = trim(tmp_dir) // '/test_cdx_fpm_manifest.toml'
     open(newunit=u, file=trim(tmp_file), status='replace', iostat=ios)
     if (ios /= 0) then
         write(0, '(a)') 'ERROR: Could not create temp fixture file'
